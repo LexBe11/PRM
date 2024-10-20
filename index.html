@@ -245,7 +245,7 @@
         updateRecordList();
     }
 
-    // Update the list of records for the current user
+    // Update Record List
     function updateRecordList() {
         const users = JSON.parse(localStorage.getItem('users'));
         const user = users.find(user => user.name === currentUser);
@@ -269,7 +269,7 @@
         });
     }
 
-    // Delete a record
+    // Delete Record
     function deleteRecord(index) {
         const users = JSON.parse(localStorage.getItem('users'));
         const user = users.find(user => user.name === currentUser);
@@ -278,7 +278,7 @@
         updateRecordList();
     }
 
-    // Search through records
+    // Search Records
     function searchRecords() {
         const searchTerm = document.getElementById('searchRecords').value.toLowerCase();
         const users = JSON.parse(localStorage.getItem('users'));
