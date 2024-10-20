@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRM - Police Record Maker</title>
+    <style>
+        body {
+            background-color: #0000FF; /* Blue background */
+            color: white; /* White text */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #000000; /* Black foreground */
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 800px;
+            margin: auto;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        label {
+            margin-top: 10px;
+            display: block;
+        }
+        input, select, textarea {
+            margin-top: 5px;
+            padding: 8px;
+            width: 100%;
+            max-width: 400px;
+            background-color: #222;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        .hidden {
+            display: none;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .record {
+            border: 1px solid #333;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #222;
+        }
+        .record button {
+            margin-left: 10px;
+        }
+        .record .record-type {
+            font-weight: bold;
+        }
+        .record .record-date {
+            color: gray;
+        }
+        .record .record-actions {
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Login Form -->
+    <div id="loginSection">
+        <h1>PRM - Police Record Maker</h1>
+        <h2>Login</h2>
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter Username">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter Password">
+        <button onclick="login()">Login</button>
+        <p id="loginError" style="color: red;"></p>
+    </div>
+
+    <!-- Main Section (Visible After Login) -->
+    <div id="mainSection" class="hidden">
+        <h2>Create New User (Record Subject)</h2>
+        <label for="newUserName">Name of Person</label>
+        <input type="text" id="newUserName" placeholder="Enter Name">
+        <button onclick="createNewUser()">Create User</button>
+
+        <h2>Add Record</h2>
+        <label for="recordType">Record Type</label>
+        <select id="recordType">
+            <!-- Prison-Themed Records -->
+            <option value="Assault on Officer">Assault on Officer</option>
+            <option value="Killing an Officer">Killing an Officer</option>
+            <option value="Attempt to Escape">Attempt to Escape</option>
+            <option value="Drug Possession">Drug Possession</option>
+            <option value="Theft">Theft</option>
+            <option value="Vandalism">Vandalism</option>
+            <option value="Bribery">Bribery</option>
+            <option value="Corruption">Corruption</option>
+            <option value="Fraud">Fraud</option>
+            <option value="Destruction of Property">Destruction of Property</option>
+
+            <!-- New prison-related offenses -->
+            <option value="Escape Attempt">Escape Attempt</option>
+            <option value="Successful Escape">Successful Escape</option>
+            <option value="Holding Contraband">Holding Contraband</option>
+            <option value="Assault on Inmate">Assault on Inmate</option>
+            <option value="Killing an Inmate">Killing an Inmate</option>
+            <option value="Attempted Murder on Inmate">Attempted Murder on Inmate</option>
+            <option value="Immediate Attack on Officer (When Seen)">Immediate Attack on Officer (When Seen)</option>
+            <option value="Stealing from Inmates">Stealing from Inmates</option>
+            <option value="Stealing from Officers">Stealing from Officers</option>
+            <option value="Crafting Illegal Items">Crafting Illegal Items</option>
+            <option value="Organizing a Prison Riot">Organizing a Prison Riot</option>
+            <option value="Unauthorized Communication with the Outside">Unauthorized Communication with the Outside</option>
+            <option value="Bribing a Guard">Bribing a Guard</option>
+            <option value="Passing Contraband Through a Visitor">Passing Contraband Through a Visitor</option>
+            <option value="Breaking and Entering (Prison Facility)">Breaking and Entering (Prison Facility)</option>
+            <option value="Tampering with Prison Surveillance">Tampering with Prison Surveillance</option>
+            <option value="Fighting with Multiple Inmates">Fighting with Multiple Inmates</option>
+            <option value="Attempting to Escape via Tunnel">Attempting to Escape via Tunnel</option>
+            <option value="Possession of a Weapon">Possession of a Weapon</option>
+            <option value="Setting Fire in the Prison">Setting Fire in the Prison</option>
+        </select>
+
+        <label for="recordCount">Number of Times</label>
+        <input type="number" id="recordCount" min="1" placeholder="Enter number of times">
+
+        <label for="escapeStatus" id="escapeStatusLabel" class="hidden">Escape Attempt (Success or Fail)</label>
+        <select id="escapeStatus" class="hidden">
+            <option value="Success">Success</option>
+            <option value="Fail">Fail</option>
+        </select>
+
+        <label for="recordNotes">Additional Notes (Optional)</label>
+        <textarea id="recordNotes" placeholder="Enter any relevant notes"></textarea>
+
+        <button onclick="addRecord()">Add Record</button>
+
+        <h2>Records</h2>
+        <input type="text" id="searchRecords" placeholder="Search Records" oninput="searchRecords()">
+        <div id="recordList"></div>
+    </div>
+</div>
+
+<script>
+    const validUsername = "Titanlock";
+    const validPassword = "titanlock";
+    let loggedIn = false;
+    let currentUser = null;
+
+    // Login Function
+    function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const loginError = document.getElementById('loginError');
+
+        if (username === validUsername && password === validPassword) {
+            loggedIn = true;
+            loginError.innerHTML = "";
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('mainSection').classList.remove('hidden');
+
+            // Check if the user has already created records
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(user => user.name === username);
+            if (user) {
+                currentUser = user.name;
+                updateRecordList();
+            }
+        } else {
+            loginError.innerHTML = "Invalid username or password!";
+        }
+    }
+
+    // Create New User (Record Subject)
+    function createNewUser() {
+        const newUserName = document.getElementById('newUserName').value;
+        if (!newUserName) {
+            alert("Please enter a name for the person.");
+            return;
+        }
+
+        if (!localStorage.getItem('users')) {
+            localStorage.setItem('users', JSON.stringify([]));
+        }
+
+        const users = JSON.parse(localStorage.getItem('users'));
+        if (users.find(user => user.name === newUserName)) {
+            alert("User already exists.");
+            return;
+        }
+
+        users.push({ name: newUserName, records: [] });
+        localStorage.setItem('users', JSON.stringify(users));
+
+        alert(`User ${newUserName} has been created.`);
+        currentUser = newUserName;
+        updateRecordList();
+    }
+
+    // Add Record
+    function addRecord() {
+        if (!currentUser) {
+            alert("Please create or select a user first.");
+            return;
+        }
+
+        const recordType = document.getElementById('recordType').value;
+        const recordCount = document.getElementById('recordCount').value;
+        const escapeStatus = document.getElementById('escapeStatus').value;
+        const notes = document.getElementById('recordNotes').value;
+
+        if (!recordCount || recordCount < 1) {
+            alert("Please enter a valid number of times.");
+            return;
+        }
+
+        const users = JSON.parse(localStorage.getItem('users'));
+        const user = users.find(user => user.name === currentUser);
+
+        const record = {
+            type: recordType,
+            count: recordCount,
+            escapeStatus: escapeStatus,
+            notes: notes,
+            date: new Date().toLocaleString()
+        };
+
+        user.records.push(record);
+        localStorage.setItem('users', JSON.stringify(users));
+
+        alert(`Record added for ${currentUser}.`);
+        updateRecordList();
+    }
+
+    // Update the list of records for the current user
+    function updateRecordList() {
+        const users = JSON.parse(localStorage.getItem('users'));
+        const user = users.find(user => user.name === currentUser);
+        const recordList = document.getElementById('recordList');
+        recordList.innerHTML = "";
+
+        user.records.forEach((record, index) => {
+            const recordDiv = document.createElement('div');
+            recordDiv.classList.add('record');
+            recordDiv.innerHTML = `
+                <div class="record-type">${record.type}</div>
+                <div class="record-date">${record.date}</div>
+                <div>Count: ${record.count}</div>
+                ${record.escapeStatus ? `<div>Status: ${record.escapeStatus}</div>` : ""}
+                ${record.notes ? `<div>Notes: ${record.notes}</div>` : ""}
+                <div class="record-actions">
+                    <button onclick="deleteRecord(${index})">Delete</button>
+                </div>
+            `;
+            recordList.appendChild(recordDiv);
+        });
+    }
+
+    // Delete a record
+    function deleteRecord(index) {
+        const users = JSON.parse(localStorage.getItem('users'));
+        const user = users.find(user => user.name === currentUser);
+        user.records.splice(index, 1);
+        localStorage.setItem('users', JSON.stringify(users));
+        updateRecordList();
+    }
+
+    // Search through records
+    function searchRecords() {
+        const searchTerm = document.getElementById('searchRecords').value.toLowerCase();
+        const users = JSON.parse(localStorage.getItem('users'));
+        const user = users.find(user => user.name === currentUser);
+        const filteredRecords = user.records.filter(record => record.type.toLowerCase().includes(searchTerm));
+        const recordList = document.getElementById('recordList');
+        recordList.innerHTML = "";
+
+        filteredRecords.forEach(record => {
+            const recordDiv = document.createElement('div');
+            recordDiv.classList.add('record');
+            recordDiv.innerHTML = `
+                <div class="record-type">${record.type}</div>
+                <div class="record-date">${record.date}</div>
+                <div>Count: ${record.count}</div>
+                ${record.escapeStatus ? `<div>Status: ${record.escapeStatus}</div>` : ""}
+                ${record.notes ? `<div>Notes: ${record.notes}</div>` : ""}
+            `;
+            recordList.appendChild(recordDiv);
+        });
+    }
+</script>
+
+</body>
+</html>
